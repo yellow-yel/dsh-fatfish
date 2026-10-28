@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## 0.1.1 — 2026-10-28
+
+npm 首发版本号调整：0.1.0 被 npm 的待批准流程占住，改用 0.1.1 发布。代码与 0.1.0 完全一致，只有版本号不同；GitHub / Gitee 的 `dsh-fatfish-hands-v0.1.0` 发行版对应同一份源码。
+
+- npm：https://www.npmjs.com/package/dsh-fatfish-hands
+
 ## 0.1.0 — 2026-10-28
 
 首个可发布版本。
