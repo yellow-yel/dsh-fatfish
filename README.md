@@ -5,11 +5,13 @@
 | 包 | 一句话 | 版本 |
 | --- | --- | --- |
 | [`dsh-fatfish`](dsh-fatfish/) | 大肥鱼人设：短句、口语、有情绪，四档可切换（日常 / 毒舌 / 犯困 / 自定义） | 0.4.0 |
-| [`dsh-fatfish-hands`](dsh-fatfish-hands/) | 让 agent 用你电脑上的 Edge 真上网：读正文、点链接、搜索、截图；支付/登录/下载硬拦截 | 0.1.0 |
+| [`dsh-fatfish-hands`](dsh-fatfish-hands/) | 让 agent 用你电脑上的 Edge 真上网：读正文、点链接、搜索、截图；支付/登录/下载硬拦截 | 0.1.1 |
 
 配套的桌面陪伴终端见 [docs/](docs/)（测试报告、发布清单）。
 
 仓库：[GitHub](https://github.com/yellow-yel/dsh-fatfish) ｜ 国内镜像：[Gitee](https://gitee.com/akiba-yuzuki_0/dsh-fatfish)。插件市场按 `dsh-plugin` topic 收录本仓库，安装与升级都以这里的发布包为准。
+
+npm：[dsh-fatfish](https://www.npmjs.com/package/dsh-fatfish) ｜ [dsh-fatfish-hands](https://www.npmjs.com/package/dsh-fatfish-hands)
 
 ## 安装
 
