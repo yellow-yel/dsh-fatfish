@@ -5,7 +5,7 @@
 | 包 | 一句话 | 版本 |
 | --- | --- | --- |
 | [`dsh-fatfish`](dsh-fatfish/) | 大肥鱼人设：短句、口语、有情绪，四档可切换（日常 / 毒舌 / 犯困 / 自定义） | 0.4.0 |
-| [`dsh-fatfish-hands`](dsh-fatfish-hands/) | 让 agent 用你电脑上的 Edge 真上网：读正文、点链接、搜索、截图；支付/登录/下载硬拦截 | 0.1.1 |
+| [`dsh-fatfish-hands`](dsh-fatfish-hands/) | 让 agent 用你电脑上的 Edge 真上网：读正文、点链接、搜索、截图；支付/登录/下载硬拦截 | 0.1.2 |
 
 配套的桌面陪伴终端见 [docs/](docs/)（测试报告、发布清单）。
 
