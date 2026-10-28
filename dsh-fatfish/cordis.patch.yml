@@ -1,0 +1,24 @@
+# ============================================================================
+# dsh-fatfish —— 大肥鱼人设包 bundle patch
+# 插件挂载声明: DSH 启动时把本插件插进 profile 的配置树。
+# `name:` 必须与包名完全一致(否则表现为"装上了但没生效")。
+#
+# 切换人设模式: 在你自己的 cordis.patch.yml 加一行覆盖(用户层,升级不丢):
+#   - id: dsh-fatfish
+#     name: dsh-fatfish
+#     config:
+#       mode: roast        # normal / roast / sleepy / custom
+#       custom: |          # 仅 mode: custom 时生效,最多600字
+#         (附加人设)
+#       enableTimeAwareness: true
+#       enableMood: true
+# ============================================================================
+
+- insert:
+    - id: dsh-fatfish
+      name: dsh-fatfish
+      config:
+        mode: normal
+        custom: ''
+        enableTimeAwareness: true
+        enableMood: true

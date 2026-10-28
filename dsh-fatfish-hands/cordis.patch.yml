@@ -1,0 +1,17 @@
+# ============================================================================
+# dsh-fatfish-hands —— DSH bundle patch
+# ============================================================================
+# 插件挂载声明：DSH 启动时把本插件插进 profile 的配置树。
+#
+# 本地安装（link 到源码目录，改完重启 DSH 生效）：
+#   dsh plugin --profile desktop add "link:C:\\path\\to\\dsh-fatfish-hands"
+# 发布后安装：
+#   dsh plugin --profile desktop add dsh-fatfish-hands
+#
+# ⚠️ name 必须与安装后的包名完全一致（dsh-fatfish-hands），否则表现为
+#    「装上了但工具不出现」。
+# ============================================================================
+
+- insert:
+    - id: dsh-fatfish-hands
+      name: dsh-fatfish-hands

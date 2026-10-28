@@ -1,0 +1,51 @@
+{
+  "name": "dsh-fatfish",
+  "version": "0.4.0",
+  "description": "给 DSH 的 agent 套上大肥鱼人格: 正常/怼人/慵懒/自定义四种模式, 自带时段感知、情绪状态和写死的红线。支持免费 API 接入(智谱/通义/DeepSeek), 不花钱也能用。与 QQ 大肥鱼机器人同源人格。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "persona",
+    "fatfish",
+    "fish",
+    "大肥鱼",
+    "free-api",
+    "zhipu",
+    "glm-4-flash"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "lib",
+    "client.js",
+    "cordis.patch.yml",
+    "locale",
+    "icon.svg",
+    "README.md",
+    "API_SETUP.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": []
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.2",
+    "@deepseek-ai/dsh-commands": "^0.1.2-rc.1 || ^0.1.7-rc.2 || ^0.2.0-rc.1",
+    "@deepseek-ai/schemastery": "^3.18.4"
+  },
+  "license": "MIT"
+}

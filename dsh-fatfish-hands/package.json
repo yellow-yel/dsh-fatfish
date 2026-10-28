@@ -1,0 +1,47 @@
+{
+  "name": "dsh-fatfish-hands",
+  "version": "0.1.0",
+  "description": "大肥鱼之手：让 DSH 里的 agent 用你电脑上的 Microsoft Edge 真上网——读正文、点链接、搜索、截图，专用配置不碰你的日常浏览器；支付/登录/下载有硬拦截。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "edge",
+    "browser",
+    "browser-automation",
+    "agent",
+    "cdp"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "tools",
+    "cordis.patch.yml",
+    "README.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "examples"
+  ],
+  "scripts": {
+    "test": "node test/plugin.mjs && node test/smoke.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "os": [
+    "win32",
+    "darwin",
+    "linux"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "license": "MIT"
+}
