@@ -9,6 +9,8 @@
 
 配套的桌面陪伴终端见 [docs/](docs/)（测试报告、发布清单）。
 
+仓库：[GitHub](https://github.com/yellow-yel/dsh-fatfish) ｜ 国内镜像：[Gitee](https://gitee.com/akiba-yuzuki_0/dsh-fatfish)。插件市场按 `dsh-plugin` topic 收录本仓库，安装与升级都以这里的发布包为准。
+
 ## 安装
 
 ```bash
