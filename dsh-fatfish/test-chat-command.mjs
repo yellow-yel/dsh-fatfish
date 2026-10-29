@@ -88,7 +88,7 @@ try {
   console.log('4. ✗ 需要真实的 API Key 才能正常回复');
   console.log('\n请在 DSH 设置页配置真实的 API Key:');
   console.log('  1. 启动 DSH NEXT');
-  console.log('  2. 设置 → 插件 → 大肥鱼人设');
+  console.log('  2. 设置 → 插件 → 大肥鱼');
   console.log('  3. 开启"启用独立 API"');
   console.log('  4. 访问 https://open.bigmodel.cn/ 注册获取免费 Key');
   console.log('  5. 粘贴 API Key 并保存');

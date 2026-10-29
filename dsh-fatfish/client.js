@@ -38,13 +38,12 @@ const API_PROVIDERS = {
     model: 'deepseek-chat',
     url: 'https://platform.deepseek.com/',
   },
-  baidu: { 
-    label: '文心一言', 
-    emoji: '📘',
-    free: '免费试用',
-    model: 'ernie-bot-turbo',
-    url: 'https://cloud.baidu.com/product/wenxinworkshop',
-  },
+}
+
+function esc(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]))
 }
 
 export function render(ctx, config, update) {
@@ -56,6 +55,12 @@ export function render(ctx, config, update) {
   const apiProvider = config?.api?.provider || 'zhipu'
   const apiKey = config?.api?.apiKey || ''
   const apiModel = config?.api?.model || 'glm-4-flash'
+  const memoryEnabled = config?.memory?.enabled !== false
+  const memoryMax = Math.max(50, Math.min(1000, Number(config?.memory?.maxFacts) || 300))
+  const securityEnabled = config?.security?.enabled !== false
+  const autoUpdate = config?.security?.autoUpdate !== false
+  const feedUrl = config?.security?.feedUrl ?? 'https://gitee.com/akiba-yuzuki_0/dsh-fatfish/raw/master/signatures.json'
+  const providerInfo = API_PROVIDERS[apiProvider] || API_PROVIDERS.zhipu
 
   const container = document.createElement('div')
   container.className = 'fatfish-settings'
@@ -238,6 +243,12 @@ export function render(ctx, config, update) {
       .fatfish-redlines li {
         margin-bottom: 4px;
       }
+      .fatfish-hint {
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--text-secondary, #8b93a7);
+        margin: 8px 0 0;
+      }
       .fatfish-badge {
         display: inline-block;
         padding: 2px 8px;
@@ -250,8 +261,8 @@ export function render(ctx, config, update) {
     </style>
 
     <div class="fatfish-header">
-      <h2>🐟 大肥鱼人设</h2>
-      <p>给 agent 套上一条胖乎乎的大肥鱼人格</p>
+      <h2>🐟 大肥鱼</h2>
+      <p>会聊天、会记事、会查毒，还会卖萌</p>
     </div>
 
     <div class="fatfish-section">
@@ -272,7 +283,7 @@ export function render(ctx, config, update) {
         <h3>自定义人设</h3>
         <div class="fatfish-field">
           <label>附加人设文本 (最多600字)</label>
-          <textarea class="fatfish-custom-input" placeholder="在这里写你想让鱼额外扮演的性格特点...">${custom}</textarea>
+          <textarea class="fatfish-custom-input" placeholder="在这里写你想让鱼额外扮演的性格特点...">${esc(custom)}</textarea>
         </div>
       </div>
     ` : ''}
@@ -287,6 +298,36 @@ export function render(ctx, config, update) {
         <label>情绪状态</label>
         <input type="checkbox" class="fatfish-mood-toggle" ${enableMood ? 'checked' : ''}>
       </div>
+    </div>
+
+    <div class="fatfish-section">
+      <h3>🧠 记忆</h3>
+      <div class="fatfish-toggle">
+        <label>启用本地记忆</label>
+        <input type="checkbox" class="fatfish-memory-toggle" ${memoryEnabled ? 'checked' : ''}>
+      </div>
+      <div class="fatfish-field">
+        <label>最多记多少条</label>
+        <input type="number" class="fatfish-memory-max" min="50" max="1000" value="${memoryMax}">
+      </div>
+      <p class="fatfish-hint">只存在本机 ~/.dsh/fatfish。说「记住…」就记下；说「忘掉…」才删。密码、验证码、证件号、银行卡不会入库。</p>
+    </div>
+
+    <div class="fatfish-section">
+      <h3>🛡 安全检查</h3>
+      <div class="fatfish-toggle">
+        <label>启用本地查杀</label>
+        <input type="checkbox" class="fatfish-security-toggle" ${securityEnabled ? 'checked' : ''}>
+      </div>
+      <div class="fatfish-toggle">
+        <label>自动更新病毒库</label>
+        <input type="checkbox" class="fatfish-security-update" ${autoUpdate ? 'checked' : ''}>
+      </div>
+      <div class="fatfish-field">
+        <label>病毒库地址（HTTPS）</label>
+        <input type="text" class="fatfish-security-feed" value="${esc(feedUrl)}" placeholder="https://.../signatures.json">
+      </div>
+      <p class="fatfish-hint">只读检查：可疑进程、开机启动项、下载/桌面/临时目录里的可执行文件。不删文件、不杀进程；病毒库只下载规则，不上传本机数据。</p>
     </div>
 
     <div class="fatfish-section">
@@ -312,15 +353,15 @@ export function render(ctx, config, update) {
 
         <div class="fatfish-field">
           <label>API Key</label>
-          <input type="password" class="fatfish-api-key" value="${apiKey}" placeholder="输入你的 API Key">
-          <a href="${API_PROVIDERS[apiProvider].url}" target="_blank" class="fatfish-api-link">
+          <input type="password" class="fatfish-api-key" value="${esc(apiKey)}" placeholder="输入你的 API Key">
+          <a href="${providerInfo.url}" target="_blank" rel="noopener" class="fatfish-api-link">
             点我注册获取免费 API Key →
           </a>
         </div>
 
         <div class="fatfish-field">
           <label>模型名称</label>
-          <input type="text" class="fatfish-api-model" value="${apiModel}" placeholder="例如: glm-4-flash">
+          <input type="text" class="fatfish-api-model" value="${esc(apiModel)}" placeholder="例如: glm-4-flash">
         </div>
       ` : ''}
     </div>
@@ -372,6 +413,51 @@ export function render(ctx, config, update) {
   if (moodToggle) {
     moodToggle.addEventListener('change', () => {
       update({ ...config, enableMood: moodToggle.checked })
+    })
+  }
+
+  // 记忆开关
+  const memoryToggle = container.querySelector('.fatfish-memory-toggle')
+  if (memoryToggle) {
+    memoryToggle.addEventListener('change', () => {
+      update({ ...config, memory: { ...(config?.memory || {}), enabled: memoryToggle.checked } })
+    })
+  }
+
+  // 记忆条数上限
+  const memoryMaxInput = container.querySelector('.fatfish-memory-max')
+  if (memoryMaxInput) {
+    memoryMaxInput.addEventListener('change', () => {
+      const n = Math.max(50, Math.min(1000, Number(memoryMaxInput.value) || 300))
+      update({ ...config, memory: { ...(config?.memory || {}), maxFacts: n } })
+    })
+  }
+
+  // 安全检查开关
+  const securityToggle = container.querySelector('.fatfish-security-toggle')
+  if (securityToggle) {
+    securityToggle.addEventListener('change', () => {
+      update({ ...config, security: { ...(config?.security || {}), enabled: securityToggle.checked } })
+    })
+  }
+
+  // 病毒库自动更新开关
+  const securityUpdate = container.querySelector('.fatfish-security-update')
+  if (securityUpdate) {
+    securityUpdate.addEventListener('change', () => {
+      update({ ...config, security: { ...(config?.security || {}), autoUpdate: securityUpdate.checked } })
+    })
+  }
+
+  // 病毒库地址
+  const securityFeed = container.querySelector('.fatfish-security-feed')
+  if (securityFeed) {
+    let debounceTimer
+    securityFeed.addEventListener('input', () => {
+      clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(() => {
+        update({ ...config, security: { ...(config?.security || {}), feedUrl: securityFeed.value.trim() } })
+      }, 500)
     })
   }
 

@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Fat Fish Persona",
-    "description": "Gives your DSH agent a chubby fish personality: normal / roast / sleepy / custom modes, with time awareness and mood state. Hard red lines: no secrets, no money, no personal attacks."
+    "title": "Fat Fish",
+    "description": "A chubby fish for your DSH agent, with local memory, read-only malware scanning and seven little actions. Zero dependencies, no file uploads."
   },
   "config": {
     "mode": {
@@ -25,6 +25,29 @@
     "enableMood": {
       "label": "Mood State",
       "description": "Auto-calculate energy and mood based on current time"
+    },
+    "memory": {
+      "label": "Local Memory",
+      "description": "Remember durable facts; stays on this machine",
+      "enabled": "Enable local memory",
+      "autoCapture": "Capture facts from conversation",
+      "maxFacts": "Maximum facts"
+    },
+    "security": {
+      "label": "Security Check",
+      "description": "Read-only scan of processes, startup items and file hashes; never deletes or kills",
+      "enabled": "Enable local scan",
+      "feedUrl": "HTTPS signature feed URL",
+      "autoUpdate": "Auto-update signatures",
+      "updateHours": "Update interval (hours)"
+    },
+    "api": {
+      "label": "Standalone API",
+      "description": "Optional, independent of DSH's LLM",
+      "enabled": "Enable standalone API",
+      "provider": "Provider",
+      "apiKey": "API Key",
+      "model": "Model"
     }
   },
   "redlines": {

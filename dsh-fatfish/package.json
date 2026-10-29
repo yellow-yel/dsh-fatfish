@@ -1,7 +1,7 @@
 {
   "name": "dsh-fatfish",
-  "version": "0.4.0",
-  "description": "给 DSH 的 agent 套上大肥鱼人格: 正常/怼人/慵懒/自定义四种模式, 自带时段感知、情绪状态和写死的红线。支持免费 API 接入(智谱/通义/DeepSeek), 不花钱也能用。与 QQ 大肥鱼机器人同源人格。",
+  "version": "0.5.0",
+  "description": "给 DSH 的 agent 套上大肥鱼人格：会聊天、会记事、会查毒。人设/时段/情绪/红线，本地记忆自动抽取，恶意进程/启动项/文件哈希检查，病毒库可在线更新，零依赖不上传。",
   "keywords": [
     "dsh",
     "dsh-plugin",
@@ -10,9 +10,11 @@
     "fatfish",
     "fish",
     "大肥鱼",
-    "free-api",
-    "zhipu",
-    "glm-4-flash"
+    "memory",
+    "antivirus",
+    "security",
+    "malware",
+    "free-api"
   ],
   "type": "module",
   "main": "lib/index.js",
@@ -30,8 +32,30 @@
     "locale",
     "icon.svg",
     "README.md",
-    "API_SETUP.md"
+    "API_SETUP.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "LICENSE"
   ],
+  "scripts": {
+    "test": "node test/plugin.mjs && node test/smoke.mjs && node test/privacy.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yellow-yel/dsh-fatfish.git",
+    "directory": "dsh-fatfish"
+  },
+  "homepage": "https://github.com/yellow-yel/dsh-fatfish/tree/master/dsh-fatfish#readme",
+  "bugs": {
+    "url": "https://github.com/yellow-yel/dsh-fatfish/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
