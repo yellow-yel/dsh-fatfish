@@ -1,6 +1,20 @@
 node_modules/
+dist/
 __pycache__/
 *.pyc
-config/api-config.json
-.env
 .DS_Store
+*.log
+
+# 本机私有配置与凭据，永远不进仓库
+dsh-fatfish/config/
+.env
+.env.*
+.npmrc
+*.token
+*_token
+*_token.txt
+*.bak-*
+*.bak-*.*
+
+# 打包产物
+*.tgz

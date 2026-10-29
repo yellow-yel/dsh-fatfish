@@ -1,5 +1,5 @@
 # ============================================================================
-# dsh-fatfish —— 大肥鱼人设包 bundle patch
+# dsh-fatfish —— 大肥鱼 bundle patch
 # 插件挂载声明: DSH 启动时把本插件插进 profile 的配置树。
 # `name:` 必须与包名完全一致(否则表现为"装上了但没生效")。
 #
@@ -12,6 +12,15 @@
 #         (附加人设)
 #       enableTimeAwareness: true
 #       enableMood: true
+#       memory:
+#         enabled: true
+#         autoCapture: true
+#         maxFacts: 300
+#       security:
+#         enabled: true
+#         feedUrl: https://gitee.com/akiba-yuzuki_0/dsh-fatfish/raw/master/signatures.json
+#         autoUpdate: true
+#         updateHours: 12
 # ============================================================================
 
 - insert:
@@ -22,3 +31,12 @@
         custom: ''
         enableTimeAwareness: true
         enableMood: true
+        memory:
+          enabled: true
+          autoCapture: true
+          maxFacts: 300
+        security:
+          enabled: true
+          feedUrl: https://gitee.com/akiba-yuzuki_0/dsh-fatfish/raw/master/signatures.json
+          autoUpdate: true
+          updateHours: 12

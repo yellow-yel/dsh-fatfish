@@ -2,6 +2,10 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## 0.1.3 — 2026-10-29
+
+上架市场版：`package.json` 补 `repository` / `homepage` / `bugs` / `publishConfig.access`，`files` 显式带上 `LICENSE`。代码与功能与 0.1.2 完全一致，无行为变更；发这个版本号只是为了让 npm 页面显示仓库链接。
+
 ## 0.1.2 — 2026-10-28
 
 补齐 npm 包内容：0.1.1 由旧包改版本号生成，缺 `LICENSE`；本版按当前源码重新打包，加入 MIT 许可文本。功能与 0.1.1 一致。

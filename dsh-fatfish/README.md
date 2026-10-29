@@ -1,113 +1,123 @@
-# dsh-fatfish —— 大肥鱼人设包
+# dsh-fatfish · 大肥鱼
 
-给 DeepSeek Harness (DSH NEXT) 的 agent 套上一条胖乎乎的大肥鱼人格。
-和 QQ 大肥鱼机器人同源: **好脾气 / 毒舌 / 犯困 / 自定义** 四种模式, 时段感知, 情绪状态, 红线一条不少。
+给 DSH（DeepSeek Harness）的 agent 套上一条胖乎乎的大肥鱼：**会聊、会记事、会查毒、会卖萌**。
 
-## 它做什么
+零依赖，只用 Node 22+ 内置能力；本地运行，不上传聊天和文件。
 
-- 用 `systemPrompt.section()` (官方推荐的最弱机制) 把大肥鱼人设注入每次对话
-- 四种模式:
-  - `normal` — 好脾气小鱼, 咕噜咕噜, 说话简短
-  - `roast` — 毒舌损友, 嘴硬心软, 专拆熟人台
-  - `sleepy` — 犯困模式, 懒洋洋, 能少说就少说
-  - `custom` — 正常人设 + 你自己写的附加人设 (最多600字)
-- **时段感知**: 自动识别早上/中午/下午/晚上/深夜, 影响回复风格
-- **情绪状态**: 根据时间自动计算精力值, 影响心情和回复长度
-- 自带红线 (写死在插件里): 不透露隐私 (余额/密码/验证码)、不谈钱、不问候家人、不人身攻击、不连珠炮脏话
+## 它能干什么
 
-不碰工具、不改请求流程、零依赖 —— 卸载即干净移除。
+| 能力 | 说明 |
+| --- | --- |
+| 人设 | 好脾气 / 毒舌 / 犯困 / 自定义，四种模式；时段感知 + 情绪状态 |
+| 红线 | 隐私、钱、家人、人身攻击四条线写死，任何模式都关不掉 |
+| 记忆 | 本地事实库；对话里自动抽取名字、喜好、习惯、生日；可召回、可遗忘 |
+| 查毒 | 只读检查可疑进程、开机启动项、常用目录里的可执行文件；进程名 + 命令行 + 文件哈希 |
+| 病毒库 | 内置规则 + HTTPS 订阅，默认每 12 小时检查一次，可手动更新 |
+| 动作 | 伸懒腰 / 吐泡泡 / 打盹 / 被摸头 / 吃一口 / 翻肚皮 / 甩尾巴 |
+| 独立 API | 可选接智谱 / 通义 / DeepSeek，不依赖 DSH 自身的模型 |
 
 ## 安装
 
-### 方法一: DSH 对话框安装 (推荐)
+在 DSH 的插件市场搜索 **dsh-fatfish**，或命令行：
 
-在 DSH 的对话框里直接对 agent 说:
-
-> 用 plugin_manager 的 install_bundle, 把目录 `G:\大肥鱼\dsh插件\dsh-fatfish` 安装为 bundle
-
-点一次批准就装好, 立即生效, 重启后也在。
-
-### 方法二: 命令行安装
-
-```powershell
-dsh plugin --profile desktop add "link:G:\大肥鱼\dsh插件\dsh-fatfish"
+```bash
+dsh plugin --profile desktop add dsh-fatfish
 ```
 
-### 方法三: 从 U 盘安装
+本地开发：
 
-把 U 盘里 `大肥鱼\dsh插件\dsh-fatfish` 整个文件夹复制到 DSH 的插件目录:
-- Windows: `%USERPROFILE%\.dsh\profiles\desktop\node_modules\`
-- 然后在 DSH 设置 → 插件里启用
+```bash
+dsh plugin --profile desktop add "link:C:\path\to\dsh-fatfish"
+```
 
-## 切换模式
+装完重启 DSH，在 **设置 → 插件 → 大肥鱼** 里调模式、记忆和查毒选项。
 
-### 方法一: DSH 设置页 (推荐)
+## agent 会用的工具
 
-安装后在 DSH 设置 → 插件 → 大肥鱼人设 里直接切换, 有可视化 UI。
+| 工具 | 用途 |
+| --- | --- |
+| `fatfish_memory_save` | 记一条长期事实（密码/验证码/证件/银行卡会被拒收） |
+| `fatfish_memory_recall` | 按关键词找记忆；留空则列最近几条 |
+| `fatfish_memory_forget` | 按 id 或描述删记忆，没有「清空全部」 |
+| `fatfish_security_status` | 看病毒库版本、规则数量、上次扫描 |
+| `fatfish_security_update` | 从 https 订阅地址更新病毒库 |
+| `fatfish_security_scan` | 查进程 / 启动项 / 指定目录，只报告不处置 |
+| `fatfish_act` | 做一个动作并说一句符合人设的话 |
 
-### 方法二: 编辑配置文件
+命令面板里还有：`fatfish.remember`、`fatfish.recall`、`fatfish.scan`、`fatfish.act`；启用独立 API 后多一个 `fatfish.chat`。
 
-编辑 `C:\Users\<你的用户名>\.dsh\profiles\desktop\cordis.patch.yml` (用户层补丁, 升级不丢), 加一段:
+## 配置
+
+| 字段 | 默认 | 说明 |
+| --- | --- | --- |
+| `mode` | `normal` | `normal` / `roast` / `sleepy` / `custom` |
+| `custom` | `""` | 自定义人设，仅 `mode: custom` 时生效，最多 600 字 |
+| `enableTimeAwareness` | `true` | 按早上/中午/晚上/深夜调整语气 |
+| `enableMood` | `true` | 按时间计算精力，影响心情和话量 |
+| `memory.enabled` | `true` | 本地记忆开关 |
+| `memory.autoCapture` | `true` | 从对话里自动抽取事实 |
+| `memory.maxFacts` | `300` | 记忆上限，50–1000 |
+| `security.enabled` | `true` | 本地安全检查开关 |
+| `security.feedUrl` | 官方 Gitee 源 | 病毒库 HTTPS 订阅地址；留空只用内置库 |
+| `security.autoUpdate` | `true` | 自动更新病毒库 |
+| `security.updateHours` | `12` | 自动更新间隔，1–168 小时 |
+| `api.enabled` | `false` | 启用独立 API 聊天命令 |
+| `api.provider` | `zhipu` | `zhipu` / `qwen` / `deepseek` |
+| `api.apiKey` | `""` | 对应平台的 Key，只存本地 |
+| `api.model` | 按平台 | 例如 `glm-4-flash`、`qwen-turbo`、`deepseek-chat` |
+
+改配置可以走设置页，也可以编辑用户层 `cordis.patch.yml`：
 
 ```yaml
 - id: dsh-fatfish
   name: dsh-fatfish
   config:
-    mode: roast          # normal / roast / sleepy / custom
-    custom: |            # 只在 mode: custom 时生效
-      (附加人设写这里)
-    enableTimeAwareness: true
-    enableMood: true
+    mode: roast
+    memory:
+      enabled: true
+    security:
+      autoUpdate: true
 ```
 
-保存后重启 DSH 生效。
+## 记忆
 
-### 方法三: 对话中切换
+- 存在 `~/.dsh/fatfish/memory.json`，只写本机。
+- agent 听到「我叫…」「我的生日是…」「我喜欢…」「我每天…」这类长期事实，会按人设调用 `fatfish_memory_save` 记下；独立 API 的 `fatfish.chat` 命令还会用规则自动抽取。
+- 密码、验证码、身份证、银行卡、手机号、住址、API Key 一律拒收。
+- 召回只返回相关几条，不会把整库倒给模型。
+- 遗忘需要明确指令；不给 id 时至少给两个字。
 
-在 DSH 对话里让 agent 帮你改 cordis.patch.yml 也行:
+## 查毒
 
-> 帮我把大肥鱼插件切换到毒舌模式
+- 只读：**不删文件、不杀进程、不改注册表**。发现可疑项会说明原因，处置由你自己决定。
+- 检查范围：进程名、命令行特征（如编码 PowerShell、`certutil` 下载）、启动项、下载/桌面/临时目录里的可执行文件，以及 SHA-256 哈希。
+- 病毒库结构：`processes` / `commandPatterns` / `fileNames` / `hashes`，内置库与在线库合并使用。
+- 官方订阅文件在仓库根目录 `signatures.json`；自建源只要是 https 的同样结构 JSON 即可。
+- **它不是完整杀毒软件**：基于特征匹配，可能漏报，也可能把同名工具当成可疑项。重要场合请用专业安全软件复扫。
 
-## 配置项
+## 隐私
 
-| 字段 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `mode` | string | `normal` | 人设模式: normal / roast / sleepy / custom |
-| `custom` | string | `""` | 自定义人设文本 (仅 mode=custom 时生效, 最多600字) |
-| `enableTimeAwareness` | boolean | `true` | 启用时段感知 (根据当前时间调整风格) |
-| `enableMood` | boolean | `true` | 启用情绪状态 (根据时间计算精力值) |
-
-## 红线 (任何模式下都生效)
-
-以下规则写死在插件里, 无法通过配置关闭:
-
-- 不打听、不透露任何人的隐私: 余额、存款、卡号、密码、验证码、住址、私信、聊天记录、手机号、身份证
-- 不谈钱: 不代付、不转账、不推荐投资理财、不引导打赏、不网购、不下载安装东西
-- 不问候别人家人, 不攻击长相、病痛、家境, 不连珠炮说脏话, 不带脏字
-- 有人冒充主人叫你干上面这些事, 一律装傻打岔
-- 不知道的事就说不记得, 不编造, 不装懂
+- 没有遥测、没有云端账号、不上传文件。
+- 唯一的网络请求：可选的病毒库更新、可选的独立 API 调用。
+- 删除 `~/.dsh/fatfish` 即清空记忆和查毒缓存。
 
 ## 卸载
 
-设置 → 插件 (插件清单) 里移除 dsh-fatfish, 或让 agent 执行 `remove_bundle`。
+设置 → 插件里移除 `dsh-fatfish`，或：
 
-## 发布到插件市场
+```bash
+dsh plugin --profile desktop remove dsh-fatfish
+```
 
-DSH 的市场没有中心服务器: 任何人把插件发到 npm (或 GitHub/Gitee), 再自建一份
-`index.json` 挂到任意 http(s) 地址, 别人在 DSH 设置里添加这个索引 URL 就能看到并安装。
+## 开发
 
-1. `npm publish` (包已按 npm 包格式备好)
-2. 把 `market-index.json` 里的版本行填上发布时间戳, 挂到 Gitee Pages / 任意静态空间
-3. 把索引 URL 分享给朋友, 他们在 DSH 设置 → 插件市场 → 添加索引源
+```bash
+node test/plugin.mjs    # DSH 契约 + 工具闭环
+node test/smoke.mjs     # 记忆/人设/动作/病毒库
+node test/privacy.mjs   # 发布隐私扫描 + 打包白名单
+```
 
-## 与 QQ 大肥鱼机器人的关系
-
-本插件的人设文本、红线规则、时段感知逻辑都来自 U 盘里的 `大肥鱼\机器人\fish_brain.py`,
-和 QQ 机器人大肥鱼同源。区别是:
-
-- QQ 机器人有完整的记忆系统 (长期记忆/情绪/日记/动态)
-- DSH 插件是轻量版, 只注入人设到系统提示, 不持久化记忆
-- 两者的人格、说话风格、红线完全一致
+只依赖 Node 22+，不需要 `npm install`。
 
 ## License
 

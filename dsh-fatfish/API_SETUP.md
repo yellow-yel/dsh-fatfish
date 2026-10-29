@@ -11,7 +11,7 @@
 - 复制生成的 Key (格式: xxx.xxx.xxx)
 
 ### 3. 在 DSH 中配置
-- 打开 DSH 设置 → 插件 → 大肥鱼人设
+- 打开 DSH 设置 → 插件 → 大肥鱼
 - 开启"启用独立 API"
 - 选择"智谱 AI (推荐)"
 - 粘贴 API Key
@@ -40,11 +40,6 @@
 - 免费额度: 注册送一定额度
 - 模型: `deepseek-chat`
 
-### 百度文心一言
-- 注册: https://cloud.baidu.com/product/wenxinworkshop
-- 免费额度: 有免费试用
-- 模型: `ernie-bot-turbo`
-
 ---
 
 ## 不启用独立 API?
@@ -68,7 +63,7 @@ DSH 本身已经集成了 LLM (DeepSeek 等)，插件会：
 A: GLM-4-Flash 模型目前完全免费，没有限制。其他模型可能有免费额度。
 
 ### Q: API Key 安全吗？
-A: API Key 保存在本地配置文件 `config/api-config.json`，不会上传到任何地方。
+A: Key 只写进 DSH 的本地插件配置，不上传、不进日志。插件不会把 Key 回显给你，也不会发给除所选平台之外的地址。
 
 ### Q: 可以同时用多个 API 吗？
 A: 可以切换，但同一时间只能用一个。在设置页切换提供商即可。

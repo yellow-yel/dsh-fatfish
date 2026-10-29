@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "大肥鱼人设",
-    "description": "给 DSH 的 agent 套上大肥鱼人格: 好脾气/毒舌/犯困/自定义四种模式, 自带时段感知和情绪状态, 红线写死(不透露隐私/不谈钱/不人身攻击)。"
+    "title": "大肥鱼",
+    "description": "给 DSH 的 agent 套上大肥鱼人格, 附带本地记忆、只读查毒和七个小动作。零依赖, 不上传文件。"
   },
   "config": {
     "mode": {
@@ -25,6 +25,29 @@
     "enableMood": {
       "label": "情绪状态",
       "description": "根据时间自动计算精力值和心情"
+    },
+    "memory": {
+      "label": "本地记忆",
+      "description": "记住主人说过的事实, 只存本机",
+      "enabled": "启用本地记忆",
+      "autoCapture": "从对话自动记下事实",
+      "maxFacts": "最多记多少条"
+    },
+    "security": {
+      "label": "安全检查",
+      "description": "只读检查可疑进程/启动项/文件哈希, 不删文件不杀进程",
+      "enabled": "启用本地查杀",
+      "feedUrl": "病毒库 HTTPS 订阅地址",
+      "autoUpdate": "自动更新病毒库",
+      "updateHours": "更新间隔(小时)"
+    },
+    "api": {
+      "label": "独立 API",
+      "description": "可选, 不依赖 DSH 的 LLM",
+      "enabled": "启用独立 API",
+      "provider": "提供商",
+      "apiKey": "API Key",
+      "model": "模型"
     }
   },
   "redlines": {

@@ -267,7 +267,7 @@ async function main() {
     console.log('\n使用方法:');
     console.log('1. 启动 DSH NEXT');
     console.log('2. 在对话框发消息，agent 会以大肥鱼人格回复');
-    console.log('3. 去设置→插件→大肥鱼人设，可以切换模式');
+    console.log('3. 去设置→插件→大肥鱼，可以切换模式');
     
     process.exit(0);
   } catch (err) {

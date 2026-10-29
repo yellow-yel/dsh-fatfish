@@ -1,0 +1,270 @@
+{
+  "version": "2026.10.28.1",
+  "updatedAt": "2026-10-28T00:00:00Z",
+  "source": "dsh-fatfish official",
+  "processes": [
+    {
+      "name": "xmrig",
+      "why": "门罗币挖矿程序"
+    },
+    {
+      "name": "xmrig-notls",
+      "why": "门罗币挖矿程序"
+    },
+    {
+      "name": "minerd",
+      "why": "挖矿程序"
+    },
+    {
+      "name": "cpuminer",
+      "why": "CPU 挖矿程序"
+    },
+    {
+      "name": "cpuminer-sse2",
+      "why": "CPU 挖矿程序"
+    },
+    {
+      "name": "ethminer",
+      "why": "以太坊挖矿程序"
+    },
+    {
+      "name": "phoenixminer",
+      "why": "以太坊挖矿程序"
+    },
+    {
+      "name": "nbminer",
+      "why": "显卡挖矿程序"
+    },
+    {
+      "name": "lolminer",
+      "why": "显卡挖矿程序"
+    },
+    {
+      "name": "teamredminer",
+      "why": "显卡挖矿程序"
+    },
+    {
+      "name": "srbminer",
+      "why": "显卡挖矿程序"
+    },
+    {
+      "name": "xmr-stak",
+      "why": "挖矿程序"
+    },
+    {
+      "name": "mimikatz",
+      "why": "Windows 凭据窃取工具"
+    },
+    {
+      "name": "lazagne",
+      "why": "浏览器/系统密码提取工具"
+    },
+    {
+      "name": "pwdump",
+      "why": "Windows 密码哈希导出工具"
+    },
+    {
+      "name": "pwdump7",
+      "why": "Windows 密码哈希导出工具"
+    },
+    {
+      "name": "njrat",
+      "why": "远程控制木马家族"
+    },
+    {
+      "name": "quasar",
+      "why": "远程控制木马家族"
+    },
+    {
+      "name": "remcos",
+      "why": "远程控制木马家族"
+    },
+    {
+      "name": "asyncrat",
+      "why": "远程控制木马家族"
+    },
+    {
+      "name": "dcrat",
+      "why": "远程控制木马家族"
+    },
+    {
+      "name": "venomrat",
+      "why": "远程控制木马家族"
+    },
+    {
+      "name": "xtremerat",
+      "why": "远程控制木马家族"
+    },
+    {
+      "name": "darkcomet",
+      "why": "远程控制木马家族"
+    },
+    {
+      "name": "blackshades",
+      "why": "远程控制木马家族"
+    },
+    {
+      "name": "nanocore",
+      "why": "远程控制木马家族"
+    },
+    {
+      "name": "adwind",
+      "why": "跨平台远程控制木马"
+    },
+    {
+      "name": "warzone",
+      "why": "远程控制木马家族"
+    },
+    {
+      "name": "plugx",
+      "why": "后门木马家族"
+    },
+    {
+      "name": "gh0st",
+      "why": "后门木马家族"
+    },
+    {
+      "name": "poisonivy",
+      "why": "后门木马家族"
+    },
+    {
+      "name": "hupigon",
+      "why": "后门木马家族"
+    }
+  ],
+  "commandPatterns": [
+    {
+      "contains": "powershell -enc",
+      "why": "PowerShell 编码命令，常见于无文件攻击"
+    },
+    {
+      "contains": "powershell.exe -enc",
+      "why": "PowerShell 编码命令，常见于无文件攻击"
+    },
+    {
+      "contains": "-encodedcommand",
+      "why": "PowerShell 编码命令"
+    },
+    {
+      "contains": "frombase64string(",
+      "why": "命令行里解码 Base64，常见于恶意脚本"
+    },
+    {
+      "contains": "downloadstring(",
+      "why": "命令行里远程下载脚本"
+    },
+    {
+      "contains": "mshta http",
+      "why": "mshta 远程执行"
+    },
+    {
+      "contains": "mshta javascript:",
+      "why": "mshta 执行脚本"
+    },
+    {
+      "contains": "certutil -urlcache",
+      "why": "certutil 下载文件，常见于投毒"
+    },
+    {
+      "contains": "regsvr32 /s /u /i:http",
+      "why": "regsvr32 远程加载脚本"
+    },
+    {
+      "contains": "rundll32 javascript:",
+      "why": "rundll32 执行脚本"
+    },
+    {
+      "contains": "bitsadmin /transfer",
+      "why": "bitsadmin 后台下载"
+    },
+    {
+      "contains": "wscript //e:jscript http",
+      "why": "wscript 远程执行脚本"
+    },
+    {
+      "contains": "iex(irm",
+      "why": "PowerShell 下载并执行"
+    },
+    {
+      "contains": "iex (irm",
+      "why": "PowerShell 下载并执行"
+    },
+    {
+      "contains": "vssadmin delete shadows",
+      "why": "删除卷影副本，常见于勒索软件"
+    },
+    {
+      "contains": "bcdedit /set {default} recoveryenabled no",
+      "why": "关闭系统恢复，常见于勒索软件"
+    }
+  ],
+  "fileNames": [
+    {
+      "name": "mimikatz.exe",
+      "why": "凭据窃取工具"
+    },
+    {
+      "name": "lazagne.exe",
+      "why": "密码提取工具"
+    },
+    {
+      "name": "pwdump.exe",
+      "why": "密码哈希导出工具"
+    },
+    {
+      "name": "pwdump7.exe",
+      "why": "密码哈希导出工具"
+    },
+    {
+      "name": "xmrig.exe",
+      "why": "挖矿程序"
+    },
+    {
+      "name": "minerd.exe",
+      "why": "挖矿程序"
+    },
+    {
+      "name": "njrat.exe",
+      "why": "远程控制木马"
+    },
+    {
+      "name": "remcos.exe",
+      "why": "远程控制木马"
+    },
+    {
+      "name": "asyncrat.exe",
+      "why": "远程控制木马"
+    },
+    {
+      "name": "darkcomet.exe",
+      "why": "远程控制木马"
+    },
+    {
+      "name": "nanocore.exe",
+      "why": "远程控制木马"
+    },
+    {
+      "name": "eicar.com",
+      "why": "EICAR 防病毒测试文件（不是真病毒）"
+    },
+    {
+      "name": "eicar.com.txt",
+      "why": "EICAR 防病毒测试文件（不是真病毒）"
+    },
+    {
+      "name": "eicar.bat",
+      "why": "EICAR 防病毒测试文件（不是真病毒）"
+    },
+    {
+      "name": "eicar.txt",
+      "why": "EICAR 防病毒测试文件（不是真病毒）"
+    }
+  ],
+  "hashes": [
+    {
+      "sha256": "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f",
+      "name": "EICAR",
+      "why": "EICAR 标准防病毒测试文件（不是真病毒）"
+    }
+  ]
+}

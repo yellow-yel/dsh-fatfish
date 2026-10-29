@@ -1,0 +1,19 @@
+{
+  "branch": "master",
+  "remotes": {
+    "origin": "https://gitee.com/akiba-yuzuki_0/dsh-fatfish.git",
+    "github": "https://github.com/yellow-yel/dsh-fatfish.git"
+  },
+  "pushOrder": ["origin", "github"],
+  "githubTopics": ["dsh-plugin", "deepseek-harness", "dsh", "persona", "browser-automation", "edge", "agent"],
+  "npmRegistry": "https://registry.npmjs.org/",
+  "npmAuthFile": "../发布/npm/.npmrc",
+  "feeds": [
+    "https://gitee.com/akiba-yuzuki_0/dsh-fatfish/raw/master/signatures.json",
+    "https://gitee.com/akiba-yuzuki_0/dsh-fatfish/raw/master/market-index.json"
+  ],
+  "tokenFiles": {
+    "origin": "../发布/gitee.token",
+    "github": "../发布/github.token"
+  }
+}
