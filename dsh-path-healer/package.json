@@ -1,0 +1,64 @@
+{
+  "name": "dsh-path-healer",
+  "version": "0.1.1",
+  "description": "DSH 路径自愈：换电脑/换盘符后自动找回 Node、Python、Git、Edge、DSH NEXT、NapCat 的真实路径，体检并修复 JSON 配置。只写自己的配置文件，不执行命令、不联网、不删文件。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "path",
+    "doctor",
+    "healer",
+    "portable",
+    "windows",
+    "environment"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20",
+    "dsh": ">=0.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yellow-yel/dsh-fatfish.git",
+    "directory": "dsh-path-healer"
+  },
+  "homepage": "https://github.com/yellow-yel/dsh-fatfish/tree/master/dsh-path-healer#readme",
+  "bugs": {
+    "url": "https://github.com/yellow-yel/dsh-fatfish/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.2"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": {
+      "optional": true
+    }
+  },
+  "license": "MIT"
+}

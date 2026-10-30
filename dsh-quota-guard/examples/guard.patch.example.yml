@@ -1,0 +1,32 @@
+# 示例：把这段合并进 profile 的 cordis.patch.yml（或作为独立 patch 层加载）。
+# 只用免费额度、到顶即停的最小配置；账号池可选，删掉 pool 就是纯计量 + 限额。
+- insert:
+    - id: llm-guard
+      name: dsh-quota-guard
+      config:
+        limits:
+          dailyTokens: 2000000
+          dailyRequests: 1500
+          perMinuteRequests: 30
+          warnAt: 0.8
+          onExceed: block
+        prices:
+          deepseek-chat: { in: 2, out: 8 }
+          'qwen-*': { in: 1.2, out: 6 }
+        pool:
+          provider: guard-pool
+          maxAttempts: 6
+          cooldownMs: 60000
+          timeoutMs: 300000
+          contextWindow: 131072
+          accounts:
+            - id: bailian-main
+              baseURL: https://dashscope.aliyuncs.com/compatible-mode/v1
+              apiKeyEnv: DASHSCOPE_API_KEY
+              models: [qwen3.8-flash, qwen3.6-flash, qwen-plus]
+            - id: glm-backup
+              baseURL: https://open.bigmodel.cn/api/paas/v4
+              apiKeyEnv: ZHIPU_API_KEY
+              models: [glm-4-flash]
+          fallback:
+            qwen3.8-flash: [qwen3.6-flash, glm-4-flash]

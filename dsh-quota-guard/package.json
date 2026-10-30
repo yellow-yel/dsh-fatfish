@@ -1,0 +1,63 @@
+{
+  "name": "dsh-quota-guard",
+  "version": "0.1.3",
+  "description": "Usage metering, daily/per-minute budgets and automatic account failover for DeepSeek Harness model calls.",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "lib",
+    "cordis.patch.yml",
+    "examples",
+    "README.md",
+    "README.zh.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "dsh": ">=0.2.0",
+    "node": ">=20"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "llm",
+    "usage",
+    "quota",
+    "budget",
+    "rate-limit",
+    "failover",
+    "cost"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yellow-yel/dsh-fatfish.git",
+    "directory": "dsh-quota-guard"
+  },
+  "homepage": "https://github.com/yellow-yel/dsh-fatfish/tree/master/dsh-quota-guard#readme",
+  "bugs": {
+    "url": "https://github.com/yellow-yel/dsh-fatfish/issues"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-llm": ">=0.0.1-rc.0"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": ">=4.0.0",
+    "@deepseek-ai/dsh-llm": ">=0.0.1-rc.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

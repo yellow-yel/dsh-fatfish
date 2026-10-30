@@ -1,0 +1,40 @@
+# ============================================================================
+# dsh-fatfish-suite —— 大肥鱼套装 bundle patch
+#
+# 装这一个包，等于同时挂上三件：
+#   dsh-fatfish        大肥鱼：人设 / 时段与情绪 / 本地记忆 / 只读查毒 / 小动作
+#   dsh-fatfish-hands  大肥鱼之手：专用 Edge 上网 / 读页面 / 截图 / 只读电脑状态
+#   dsh-quota-guard    额度护栏：用量账本 / 每日限额 / 免费账号轮换
+#
+# ⚠️ 套装和三件套二选一。已经单独装过其中任何一个，再装套装会出现重复挂载，
+#    请先 `dsh plugin remove` 掉单独装的包，或者别装套装。
+#
+# 想改人设/记忆/查毒选项：在用户层 cordis.patch.yml 覆盖 id: dsh-fatfish。
+# 想设限额：覆盖 id: llm-guard，给 limits.dailyTokens / dailyRequests 赋值。
+# ============================================================================
+
+- insert:
+    - id: dsh-fatfish
+      name: dsh-fatfish
+      config:
+        mode: normal
+        custom: ''
+        enableTimeAwareness: true
+        enableMood: true
+        memory:
+          enabled: true
+          autoCapture: true
+          maxFacts: 300
+        security:
+          enabled: true
+          feedUrl: https://gitee.com/akiba-yuzuki_0/dsh-fatfish/raw/master/signatures.json
+          autoUpdate: true
+          updateHours: 12
+
+    - id: dsh-fatfish-hands
+      name: dsh-fatfish-hands
+
+    - id: llm-guard
+      name: dsh-quota-guard
+      config:
+        enabled: true
