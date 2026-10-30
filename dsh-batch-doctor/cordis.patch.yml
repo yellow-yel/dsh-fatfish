@@ -1,0 +1,21 @@
+# ============================================================================
+# dsh-batch-doctor —— Windows 脚本编码体检
+# `name:` 必须和 npm 包名完全一致，否则表现为「装上了但没生效」。
+#
+# 用法：
+#   /batchdoctor.lint D:\project     只体检
+#   /batchdoctor.fix  D:\project     按 mode 转码（写前 .bak）
+#
+# 默认把中文批处理转成 GBK + chcp 936；ps1 补 UTF-8 BOM。
+# mode 改成 utf8 则统一 UTF-8（批处理不带 BOM）。
+# ============================================================================
+
+- insert:
+    - id: dsh-batch-doctor
+      name: dsh-batch-doctor
+      config:
+        mode: gbk
+        backup: true
+        maxFiles: 1000
+        stalePaths: []
+        skipDirs: []

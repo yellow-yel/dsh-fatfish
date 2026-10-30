@@ -1,0 +1,68 @@
+{
+  "name": "dsh-fatfish-suite",
+  "version": "0.1.0",
+  "description": "大肥鱼套装：一次装齐人格与本地记忆、专用 Edge 上网之手、模型额度护栏。三件各自带硬红线，默认免费优先，不上传聊天与文件。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "fatfish",
+    "大肥鱼",
+    "suite",
+    "bundle",
+    "persona",
+    "browser",
+    "quota"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node test/plugin.mjs"
+  },
+  "engines": {
+    "node": ">=22",
+    "dsh": ">=0.2.0"
+  },
+  "dependencies": {
+    "dsh-fatfish": "0.5.0",
+    "dsh-fatfish-hands": "0.1.3",
+    "dsh-quota-guard": "0.1.3"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.2",
+    "@deepseek-ai/dsh-commands": "^0.1.2-rc.1 || ^0.1.7-rc.2 || ^0.2.0-rc.1",
+    "@deepseek-ai/dsh-llm": ">=0.0.1-rc.0",
+    "@deepseek-ai/schemastery": "^3.18.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yellow-yel/dsh-fatfish.git",
+    "directory": "dsh-fatfish-suite"
+  },
+  "homepage": "https://github.com/yellow-yel/dsh-fatfish/tree/master/dsh-fatfish-suite#readme",
+  "bugs": {
+    "url": "https://github.com/yellow-yel/dsh-fatfish/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,26 @@
+# ============================================================================
+# dsh-path-healer —— 环境路径自愈
+# `name:` 必须和 npm 包名完全一致，否则表现为「装上了但没生效」。
+#
+# 换电脑/换盘符后，配置里的路径失效时：
+#   /pathhealer.check    只体检
+#   /pathhealer.repair   找回并写回（写前 .bak）
+#   /pathhealer.get node 取单项路径
+#
+# 自己的配置示例（默认 ~/.dsh/path-healer.json，扁平结构）：
+# {
+#   "node": "D:\\tools\\node.exe",
+#   "python": "D:\\Python39\\python.exe"
+# }
+#
+# 也可以直接指向已有的 路径配置.json（扁平结构），修复时保留其它键。
+# ============================================================================
+
+- insert:
+    - id: dsh-path-healer
+      name: dsh-path-healer
+      config:
+        configFile: ''
+        scanDrives: false
+        maxDepth: 4
+        targets: []

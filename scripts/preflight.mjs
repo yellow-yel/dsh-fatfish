@@ -84,16 +84,27 @@ await check('插件目录齐全', () => {
   return `${pkgs.length} 个包：${pkgs.map((p) => `${p.name}@${p.version}`).join(' · ')}`
 })
 
-await check('patch 声明与包名一致', () => {
+await check('patch 声明与包名/依赖一致', () => {
   const bad = []
-  for (const { dir, name } of pkgs) {
+  for (const { dir, name, pkg } of pkgs) {
     const yml = fs.readFileSync(path.join(bundleRoot, dir, 'cordis.patch.yml'), 'utf8')
     const ids = [...yml.matchAll(/^\s*-\s*id:\s*['"]?([^'"\s#]+)/gm)].map((m) => m[1])
     const names = [...yml.matchAll(/^\s+name:\s*['"]?([^'"\s#]+)/gm)].map((m) => m[1])
-    if (!ids.includes(name) || !names.includes(name)) bad.push(`${dir}: id=${ids} name=${names}`)
+    const deps = Object.keys(pkg.dependencies || {})
+    if (!ids.length) bad.push(`${dir}: patch 没有 insert id`)
+    if (deps.length) {
+      // 元包：patch 负责挂上全部同伴依赖，不挂自己
+      for (const dep of deps) {
+        if (!names.includes(dep)) bad.push(`${dir}: patch 缺依赖 ${dep}`)
+        if (!fs.existsSync(path.join(bundleRoot, dep, 'package.json'))) bad.push(`${dir}: 依赖 ${dep} 不在市场目录`)
+      }
+      if (names.includes(name)) bad.push(`${dir}: 元包不应插入自己`)
+    } else if (!names.includes(name)) {
+      bad.push(`${dir}: patch 没挂自己（name=${names.join('/') || '空'}）`)
+    }
   }
   assert(!bad.length, bad.join(' | '))
-  return 'DSH 装完能挂上'
+  return '常规包挂自己，元包挂依赖'
 })
 
 await check('市场元数据完整', () => {
@@ -246,18 +257,27 @@ await check('git 仓库与远端就绪', () => {
 })
 
 if (!SKIP_TESTS) {
+  const quotaDir = path.join(bundleRoot, 'dsh-quota-guard')
+  const quotaTests = fs.readdirSync(path.join(quotaDir, 'test'))
+    .filter((f) => f.endsWith('.test.js'))
+    .sort()
+    .map((f) => `test/${f}`)
+  const hostLlm = path.join(quotaDir, 'node_modules', '@deepseek-ai', 'dsh-llm', 'lib', 'index.js')
   const suites = [
-    ['dsh-fatfish 契约', 'dsh-fatfish', 'test/plugin.mjs'],
-    ['dsh-fatfish 冒烟', 'dsh-fatfish', 'test/smoke.mjs'],
-    ['dsh-fatfish 隐私', 'dsh-fatfish', 'test/privacy.mjs'],
-    ['dsh-fatfish-hands 契约', 'dsh-fatfish-hands', 'test/plugin.mjs'],
+    ['dsh-fatfish 契约', 'dsh-fatfish', ['test/plugin.mjs']],
+    ['dsh-fatfish 冒烟', 'dsh-fatfish', ['test/smoke.mjs']],
+    ['dsh-fatfish 隐私', 'dsh-fatfish', ['test/privacy.mjs']],
+    ['dsh-fatfish-hands 契约', 'dsh-fatfish-hands', ['test/plugin.mjs']],
+    ['dsh-quota-guard 离线测试', 'dsh-quota-guard', ['--test', ...quotaTests], fs.existsSync(hostLlm) ? { DSH_HOST_LLM: hostLlm } : {}],
+    ['dsh-fatfish-suite 契约', 'dsh-fatfish-suite', ['test/plugin.mjs']],
   ]
-  if (WITH_BROWSER) suites.push(['dsh-fatfish-hands 浏览器冒烟', 'dsh-fatfish-hands', 'test/smoke.mjs'])
-  for (const [title, dir, script] of suites) {
+  if (WITH_BROWSER) suites.push(['dsh-fatfish-hands 浏览器冒烟', 'dsh-fatfish-hands', ['test/smoke.mjs']])
+  for (const [title, dir, args, env] of suites) {
     await check(title, () => {
-      const res = run(process.execPath, [script], { cwd: path.join(bundleRoot, dir) })
-      assert(res.code === 0, `${script} 失败：${res.all.trim().split('\n').filter((l) => l.includes('✘') || l.includes('Error')).slice(0, 3).join(' / ') || res.all.slice(-200)}`)
-      return '通过'
+      const res = run(process.execPath, args, { cwd: path.join(bundleRoot, dir), env })
+      assert(res.code === 0, `${args.join(' ')} 失败：${res.all.trim().split('\n').filter((l) => l.includes('✘') || l.includes('not ok') || l.includes('Error')).slice(0, 3).join(' / ') || res.all.slice(-200)}`)
+      const passed = (res.stdout.match(/^# pass (\d+)$/m) || [])[1]
+      return passed ? `${passed} 项通过` : '通过'
     })
   }
 } else {
@@ -267,9 +287,9 @@ if (!SKIP_TESTS) {
 await check('DSH 自带 node 加载插件入口', () => {
   const rt = dshRuntime()
   if (!rt) return '本机没装 DSH，跳过（系统 node 已跑过四套测试）'
-  const entries = pkgs.map(({ dir, name }) => ({
+  const entries = pkgs.map(({ dir, name, pkg }) => ({
     name,
-    url: pathToFileURL(path.join(bundleRoot, dir, 'lib', 'index.js')).href,
+    url: pathToFileURL(path.join(bundleRoot, dir, pkg.main || 'lib/index.js')).href,
   }))
   const probe = path.join(os.tmpdir(), `fatfish-host-probe-${process.pid}.mjs`)
   fs.writeFileSync(probe, `
@@ -323,7 +343,7 @@ if (!OFFLINE) {
       if (res.code === 0 && out && out.includes(version)) taken.push(`${name}@${version} 已在 npm 上`)
     }
     assert(!taken.length, `${taken.join('；')} —— 版本号只能往前走，改 package.json 再自检`)
-    return '两个号都能发'
+    return `${pkgs.length} 个号都能发`
   })
 
   await check('订阅地址状态', () => {

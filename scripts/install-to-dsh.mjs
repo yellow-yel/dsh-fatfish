@@ -1,7 +1,8 @@
 /**
  * 本地安装 / 卸载到 DSH，用于装好后立刻在真机上验证。
  *
- *   node scripts/install-to-dsh.mjs [profile路径]     安装（自动找 ~/.dsh/profiles/desktop）
+ *   node scripts/install-to-dsh.mjs [profile路径]     装三件套（每个包各挂自己）
+ *   node scripts/install-to-dsh.mjs --suite           装套装（四个目录都复制，只挂 dsh-fatfish-suite）
  *   node scripts/install-to-dsh.mjs --remove          卸载（还原 package.json 与 patch，备份保留）
  *
  * 只动 DSH 配置目录里的大肥鱼相关内容，改之前都会留 .bak-<时间戳>。
@@ -9,10 +10,11 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { bundleRoot, pluginPackages } from './lib.mjs'
+import { bundleRoot, pluginPackages, COMPANION_DIRS } from './lib.mjs'
 
 const argv = process.argv.slice(2)
 const REMOVE = argv.includes('--remove')
+const SUITE = argv.includes('--suite')
 const stamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14)
 
 function fail(msg) {
@@ -64,7 +66,14 @@ const COPY_SKIP = /(^|[\\/])(node_modules|\.git|test|config|dist|__pycache__)([\
 const SECRET_FILES = /(^|[\\/])(\.env|\.npmrc)$/
 
 const profile = findProfile()
-const pkgs = pluginPackages()
+const allPkgs = pluginPackages()
+const suitePkg = allPkgs.find((p) => p.name === 'dsh-fatfish-suite')
+if (SUITE && !suitePkg) fail('市场目录里没有 dsh-fatfish-suite')
+// 套装模式下四个包都复制，但只把套装写进 bundles / patch；
+// 普通模式只装三个同伴，各自挂自己。path-healer / batch-doctor 是独立工具，不跟着套装走。
+const corePkgs = allPkgs.filter((p) => COMPANION_DIRS.includes(p.dir))
+const pkgs = SUITE ? [...corePkgs, suitePkg] : corePkgs
+const mountTargets = SUITE ? [suitePkg] : corePkgs
 const pkgFile = path.join(profile, 'package.json')
 const patchFile = path.join(profile, 'cordis.patch.yml')
 const pnpmManaged = fs.existsSync(path.join(profile, 'node_modules', '.modules.yaml'))
@@ -91,7 +100,7 @@ if (REMOVE) {
   const profilePkg = fs.existsSync(pkgFile) ? readJson(pkgFile) : { dsh: { profile: { bundles: [] } } }
   const bundles = Array.isArray(profilePkg?.dsh?.profile?.bundles) ? profilePkg.dsh.profile.bundles : []
   let changed = false
-  for (const { name } of pkgs) {
+  for (const { name } of allPkgs) {
     const dest = path.join(profile, 'node_modules', name)
     if (fs.existsSync(dest)) {
       const trash = `${dest}.removed-${stamp}`
@@ -108,8 +117,9 @@ if (REMOVE) {
     console.log('  已从 bundles 列表移除')
   }
   if (fs.existsSync(patchFile)) {
+    const markerRe = new RegExp(`^#\\s*(?:${allPkgs.map((p) => p.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\s+\\(added`)
     const markers = fs.readFileSync(patchFile, 'utf8').split(/\r?\n/)
-      .map((line, i) => ({ line, i })).filter(({ line }) => /^#\s*dsh-fatfish(?:-hands)?\s+\(added/.test(line))
+      .map((line, i) => ({ line, i })).filter(({ line }) => markerRe.test(line))
     if (markers.length) {
       console.log(`  \x1b[33m!\x1b[0m patch 里还留着 ${markers.length} 段大肥鱼配置（行 ${markers.map((m) => m.i + 1).join('/')}）`)
       console.log('     每个人对 patch 的改法不一样，脚本不猜——请手动删掉对应的 - insert: 段（已备份 .bak- 文件，改坏可还原）')
@@ -122,6 +132,23 @@ if (REMOVE) {
 }
 
 ensureProfileFiles()
+
+const existingPkg = readJson(pkgFile)
+const existingBundles = Array.isArray(existingPkg?.dsh?.profile?.bundles) ? existingPkg.dsh.profile.bundles : []
+const existingPatch = fs.existsSync(patchFile) ? fs.readFileSync(patchFile, 'utf8') : ''
+const patchNames = [...existingPatch.matchAll(/^\s+name:\s*['"]?([^'"\s#]+)/gm)].map((m) => m[1])
+const companionNames = corePkgs.map((p) => p.name)
+
+if (SUITE) {
+  const dup = companionNames.filter((n) => patchNames.includes(n) || existingBundles.includes(n))
+  if (dup.length) {
+    fail(`profile 里已经单独装过 ${dup.join(' / ')}，套装会和它重复挂载。\n先跑 node scripts/install-to-dsh.mjs --remove，再手动删掉 cordis.patch.yml 里对应的 insert 段，然后重试。`)
+  }
+} else if (patchNames.includes('dsh-fatfish-suite') || existingBundles.includes('dsh-fatfish-suite')) {
+  fail('profile 里已经装了套装；请先卸载套装，或改用 --suite 安装。')
+}
+
+console.log(`\n安装模式：${SUITE ? '套装（只挂 dsh-fatfish-suite）' : '三件套（各挂各的）'}`)
 
 const installed = []
 for (const { dir, name, version } of pkgs) {
@@ -149,7 +176,7 @@ profilePkg.dsh = profilePkg.dsh || {}
 profilePkg.dsh.profile = profilePkg.dsh.profile || {}
 const bundles = Array.isArray(profilePkg.dsh.profile.bundles) ? profilePkg.dsh.profile.bundles : []
 let pkgChanged = false
-for (const { name } of installed) {
+for (const { name } of mountTargets) {
   if (!bundles.includes(name)) { bundles.push(name); pkgChanged = true }
 }
 profilePkg.dsh.profile.bundles = bundles
@@ -158,15 +185,16 @@ if (pkgChanged) {
   fs.writeFileSync(pkgFile, JSON.stringify(profilePkg, null, 2) + '\n', 'utf8')
   console.log('  已写入 profile 的 bundles 列表')
 } else {
-  console.log('  bundles 已包含这两个插件')
+  console.log(`  bundles 已包含 ${mountTargets.map((p) => p.name).join(' / ')}`)
 }
 
 let patch = fs.readFileSync(patchFile, 'utf8')
 if (!patch.endsWith('\n')) patch += '\n'
 let patchChanged = false
-for (const { name, src } of installed) {
-  const idRe = new RegExp(`^\\s*-\\s*id:\\s*['"]?${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]?\\s*$`, 'm')
-  if (idRe.test(patch)) { console.log(`  patch 已有 ${name}，跳过`); continue }
+for (const { name, dir } of mountTargets) {
+  const src = path.join(bundleRoot, dir)
+  const nameRe = new RegExp(`^\\s+name:\\s*['"]?${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]?\\s*$`, 'm')
+  if (nameRe.test(patch)) { console.log(`  patch 已有 ${name}，跳过`); continue }
   const block = fs.readFileSync(path.join(src, 'cordis.patch.yml'), 'utf8')
   const at = block.indexOf('- insert:')
   if (at < 0) fail(`${name} 的 cordis.patch.yml 没有 insert 段`)
@@ -182,8 +210,8 @@ if (patchChanged) {
 console.log('\n[完成] 插件已装进 DSH 配置。')
 if (pnpmManaged) {
   console.log('  \x1b[33m!\x1b[0m 这个 profile 的 node_modules 由 pnpm 托管，下次跑 pnpm install 会把直接拷进去的目录清掉。')
-  console.log('    长期用法：发布后在 DSH 里 `dsh plugin --profile desktop add dsh-fatfish`，或走市场安装。')
+  console.log('    长期用法：发布后在 DSH 里 `dsh plugin --profile desktop add dsh-fatfish-suite`，或走市场安装。')
 }
 console.log('  1. 重启 DSH（或往 cordis.patch.yml 追加一行 "# reload" 触发热重载）')
-console.log('  2. 设置 → 插件 → 大肥鱼 / 大肥鱼之手 调选项')
+console.log(`  2. 设置 → 插件 → ${SUITE ? '大肥鱼套装（内含三件）' : '大肥鱼 / 大肥鱼之手 / 额度护栏'} 调选项`)
 console.log('  3. 卸载：node scripts/install-to-dsh.mjs --remove')

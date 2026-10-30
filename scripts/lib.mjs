@@ -12,7 +12,9 @@ export const scriptsDir = path.dirname(fileURLToPath(import.meta.url))
 export const bundleRoot = path.resolve(scriptsDir, '..')
 export const config = readJson(path.join(bundleRoot, '上架配置.json'))
 
-export const PLUGIN_DIRS = ['dsh-fatfish', 'dsh-fatfish-hands']
+export const PLUGIN_DIRS = ['dsh-fatfish', 'dsh-fatfish-hands', 'dsh-quota-guard', 'dsh-path-healer', 'dsh-batch-doctor', 'dsh-fatfish-suite']
+export const SUITE_DIR = 'dsh-fatfish-suite'
+export const COMPANION_DIRS = ['dsh-fatfish', 'dsh-fatfish-hands', 'dsh-quota-guard']
 
 export function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'))

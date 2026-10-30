@@ -1,0 +1,65 @@
+{
+  "name": "dsh-batch-doctor",
+  "version": "0.1.1",
+  "description": "DSH 脚本体检：检查/修复 Windows bat/cmd/ps1 的中文编码、CRLF、chcp 不匹配、ps1 缺 BOM、块内 echo 裸括号和写死路径。只动指定目录里的脚本，写前 .bak，不联网、不删文件。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "batch",
+    "cmd",
+    "powershell",
+    "encoding",
+    "gbk",
+    "windows",
+    "lint"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20",
+    "dsh": ">=0.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yellow-yel/dsh-fatfish.git",
+    "directory": "dsh-batch-doctor"
+  },
+  "homepage": "https://github.com/yellow-yel/dsh-fatfish/tree/master/dsh-batch-doctor#readme",
+  "bugs": {
+    "url": "https://github.com/yellow-yel/dsh-fatfish/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.2"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": {
+      "optional": true
+    }
+  },
+  "license": "MIT"
+}

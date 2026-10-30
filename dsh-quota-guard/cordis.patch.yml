@@ -1,0 +1,4 @@
+# 安装本包后由 launcher 合并的一层 patch。
+- insert:
+    - id: llm-guard
+      name: dsh-quota-guard
