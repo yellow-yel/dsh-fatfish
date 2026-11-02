@@ -1,5 +1,18 @@
 # 更新日志
 
+## 0.5.1 (2026-11-02)
+
+- 修复装载硬伤一：`Config` 原来只是裸 JSON Schema，而宿主 cordis 走 `runtime.Config["~standard"].validate(config)`，
+  缺这一句会在装载时抛 `TypeError: Cannot read properties of undefined (reading 'validate')`，整枚插件不装载。
+  现在补上 Standard Schema：按 Schema 填默认值，布尔 / 整数 / 枚举 / 字符串逐项收口，整数尊重 `minimum` / `maximum`，
+  字符串尊重 `maxLength`，校验只回 `{ value }`，不返回 `issues`、不用异步。
+- 修复装载硬伤二：`command` 服务只在 agent 上下文的子作用域提供。写进 `inject` 会让整枚插件卡在
+  `pending (waiting for service: command)`（人设、记忆、查毒全部不生效）；不写进 `inject` 直接读又会被宿主抛
+  `cannot get property "command" without inject`。改成 try/catch 按需取：取到就注册斜杠命令，取不到只少命令，
+  人设与 7 个工具照常装载。
+- 契约测试补两条：宿主 Standard Schema 契约、`ctx.*` 用到的服务必须逐项与 `inject` 对上（受保护的除外）。
+- 装机实测：DSH NEXT 桌面端 `plugin.state` 由 `pending` 变 `active`，日志出现 `[fatfish] 人设 normal · 工具 7 个`。
+
 ## 0.5.0 (2026-10-28)
 
 - 新增本地记忆：保存 / 召回 / 遗忘，对话里自动抽取名字、喜好、习惯、生日

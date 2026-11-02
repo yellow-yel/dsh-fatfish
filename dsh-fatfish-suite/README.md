@@ -4,7 +4,7 @@
 
 | 同伴包 | 它负责什么 | 版本 |
 | --- | --- | --- |
-| [`dsh-fatfish`](https://www.npmjs.com/package/dsh-fatfish) | 四档人设、时段与情绪、本地记忆、只读查毒与可更新病毒库、七个小动作 | 0.5.0 |
+| [`dsh-fatfish`](https://www.npmjs.com/package/dsh-fatfish) | 四档人设、时段与情绪、本地记忆、只读查毒与可更新病毒库、七个小动作 | 0.5.1 |
 | [`dsh-fatfish-hands`](https://www.npmjs.com/package/dsh-fatfish-hands) | 用专用 Edge 真上网：读正文、点链接、搜索、截图；另带只读电脑状态 | 0.1.3 |
 | [`dsh-quota-guard`](https://www.npmjs.com/package/dsh-quota-guard) | 模型用量账本、每日/每分钟限额、免费账号轮换 | 0.1.3 |
 

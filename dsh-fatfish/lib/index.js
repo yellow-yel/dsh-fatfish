@@ -412,7 +412,7 @@ export const Config = {
       default: 'normal',
       description: '人设模式: normal(好脾气) / roast(毒舌) / sleepy(犯困) / custom(自定义)',
     },
-    custom: { type: 'string', default: '', description: '自定义人设文本(仅 mode=custom 时生效, 最多600字)' },
+    custom: { type: 'string', default: '', maxLength: 600, description: '自定义人设文本(仅 mode=custom 时生效, 最多600字)' },
     enableTimeAwareness: { type: 'boolean', default: true, description: '时段感知' },
     enableMood: { type: 'boolean', default: true, description: '情绪状态' },
     memory: {
@@ -442,6 +442,40 @@ export const Config = {
       },
     },
   },
+}
+
+// 宿主 cordis 用 Standard Schema 校验：runtime.Config['~standard'].validate(config)；只给 JSON Schema 会 TypeError，整枚插件不装载
+function normalizeConfig(node, value) {
+  if (!node || node.type !== 'object') return value
+  const src = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+  const out = { ...src }
+  for (const [k, sub] of Object.entries(node.properties || {})) {
+    if (sub.type === 'object') {
+      out[k] = normalizeConfig(sub, out[k])
+      continue
+    }
+    if (out[k] === undefined) {
+      if (sub.default !== undefined) out[k] = sub.default
+      continue
+    }
+    if (sub.type === 'boolean') out[k] = out[k] === true || out[k] === 'true'
+    else if (sub.type === 'integer') {
+      const lo = Number.isFinite(+sub.minimum) ? +sub.minimum : -1e15
+      const hi = Number.isFinite(+sub.maximum) ? +sub.maximum : 1e15
+      out[k] = clamp(out[k], lo, hi, sub.default)
+    } else if (sub.enum && !sub.enum.includes(out[k])) out[k] = sub.default
+    else if (sub.type === 'string') {
+      out[k] = String(out[k])
+      if (sub.maxLength) out[k] = out[k].slice(0, sub.maxLength)
+    }
+  }
+  return out
+}
+
+Config['~standard'] = {
+  version: 1,
+  vendor: 'dsh-fatfish',
+  validate: (value) => ({ value: normalizeConfig(Config, value) }),
 }
 
 export function apply(ctx, config) {
@@ -481,9 +515,16 @@ export function apply(ctx, config) {
     }
   }
 
-  if (ctx.command) {
+  // command 只在 agent 上下文的子作用域提供；根作用域注入它会让整枚插件永远 pending，
+  // 直接读又会被宿主抛 cannot get property，所以按需取、取不到就跳过斜杠命令。
+  let command = null
+  try {
+    command = ctx.command
+  } catch {}
+
+  if (command) {
     if (cfg.api?.enabled) {
-      ctx.command?.('fatfish.chat <message...>', '和大肥鱼聊天（独立 API）', async (message) => {
+      command('fatfish.chat <message...>', '和大肥鱼聊天（独立 API）', async (message) => {
         try {
           const api = resolveApiConfig(cfg.api)
           const memories = memoryEnabled ? recallFacts(message, { limit: 5 }) : []
@@ -507,7 +548,7 @@ export function apply(ctx, config) {
     }
 
     if (memoryEnabled) {
-      ctx.command?.('fatfish.remember <text...>', '让大肥鱼记住一件事', async (value) => {
+      command('fatfish.remember <text...>', '让大肥鱼记住一件事', async (value) => {
         try {
           const r = saveFact({ text: value, source: 'command', maxFacts: cfg.memory?.maxFacts || MEMORY_LIMIT_DEFAULT })
           return `${r.created ? '记下了' : '这条已经记过'}（${r.fact.id}），一共 ${r.total} 条。`
@@ -515,14 +556,14 @@ export function apply(ctx, config) {
           return `咕噜... 记不了：${e.message}`
         }
       })
-      ctx.command?.('fatfish.recall <query...>', '翻大肥鱼的记忆', async (value) => {
+      command('fatfish.recall <query...>', '翻大肥鱼的记忆', async (value) => {
         const facts = recallFacts(value || '', { limit: 5 })
         return facts.length ? renderFacts(facts) : '记忆里没有相关的事。'
       })
     }
 
     if (securityEnabled) {
-      ctx.command?.('fatfish.scan [scope]', '本地轻量查杀：quick / process / startup', async (value) => {
+      command('fatfish.scan [scope]', '本地轻量查杀：quick / process / startup', async (value) => {
         const scope = ['quick', 'process', 'startup'].includes(String(value || '').trim()) ? String(value).trim() : 'quick'
         try {
           return scanView(await scan({ scope }))
@@ -532,7 +573,7 @@ export function apply(ctx, config) {
       })
     }
 
-    ctx.command?.('fatfish.act <action>', `大肥鱼做动作：${Object.keys(ACTIONS).join(' / ')}`, async (value) => {
+    command('fatfish.act <action>', `大肥鱼做动作：${Object.keys(ACTIONS).join(' / ')}`, async (value) => {
       const r = performAction(String(value || '').trim())
       return r.ok ? r.text : r.error
     })

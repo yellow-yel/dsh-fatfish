@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import {
   decodeBuffer,
   analyzeBuffer,
@@ -196,3 +197,51 @@ test('插件生命周期：注册工具与命令', async () => {
   const check = await commands.get('batchdoctor.lint [dir]')(dir)
   assert.match(check, /脚本体检/)
 })
+
+const LIB_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'lib')
+const CORE_CTX = new Set(['effect', 'logger', 'options', 'fiber', 'events', 'platform', 'sessions'])
+
+function ctxServices() {
+  const used = new Set()
+  const guarded = new Set()
+  for (const f of fs.readdirSync(LIB_DIR).filter((x) => x.endsWith('.js'))) {
+    const lines = fs.readFileSync(path.join(LIB_DIR, f), 'utf8').split(/\r?\n/)
+    lines.forEach((line, i) => {
+      for (const m of line.matchAll(/\bctx\.([a-zA-Z_]\w*)/g)) {
+        const near = lines.slice(Math.max(0, i - 2), i + 3).join('\n')
+        if (/\btry\s*\{/.test(near) && /\}\s*catch/.test(near)) guarded.add(m[1])
+        else used.add(m[1])
+      }
+    })
+  }
+  return { used, guarded }
+}
+
+test('宿主契约一：Config 要带 ~standard.validate，裸 JSON Schema 会让整枚插件不装载', () => {
+  const std = plugin.Config['~standard']
+  assert.equal(typeof std?.validate, 'function', '缺 Config["~standard"]，cordis resolveConfig 会 TypeError')
+  assert.equal(std.version, 1)
+  assert.ok(std.vendor)
+  for (const junk of [undefined, null, {}]) {
+    const r = std.validate(junk)
+    assert.equal(r.issues, undefined)
+    assert.equal(r.value.mode, 'gbk')
+    assert.equal(r.value.backup, true)
+  }
+  const r = std.validate({ mode: 'latin1', backup: 'false', maxFiles: 999999, stalePaths: ['F:\\\\111'] })
+  assert.equal(r.issues, undefined)
+  assert.equal(r.value.mode, 'gbk')
+  assert.equal(r.value.backup, false)
+  assert.equal(r.value.maxFiles, 5000)
+  assert.deepEqual(r.value.stalePaths, ['F:\\\\111'])
+})
+
+test('宿主契约二：非核心 ctx 服务要么进 inject，要么 try/catch 兜住再读', () => {
+  const { used, guarded } = ctxServices()
+  const missing = [...used].filter((k) => !CORE_CTX.has(k) && !plugin.inject.includes(k))
+  assert.deepEqual(missing, [], `inject 少了：${missing.join(', ')}`)
+  assert.ok(!plugin.inject.includes('command'), 'command 进 inject 会让根作用域永远 pending')
+  assert.ok(!used.has('command'), 'ctx.command 必须包在 try/catch 里读')
+  assert.ok(guarded.has('command'), '源码里没有受保护的 ctx.command 取值')
+})
+

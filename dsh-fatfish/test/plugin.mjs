@@ -8,6 +8,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import crypto from 'node:crypto'
+import { fileURLToPath } from 'node:url'
 
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fatfish-test-'))
 process.env.FATFISH_DATA = dataDir
@@ -87,6 +88,49 @@ await check('导出符合 DSH 约定', () => {
   assert.ok(plugin.Config?.properties?.security)
   assert.equal(sections.length, 1)
   assert.match(sections[0].text, /fatfish_memory_save/)
+})
+
+await check('宿主 Standard Schema 契约（cordis 读 Config["~standard"].validate，缺它整枚不装载）', () => {
+  const std = plugin.Config['~standard']
+  assert.equal(typeof std?.validate, 'function')
+  assert.equal(std.version, 1)
+  const empty = std.validate({})
+  assert.ok(!empty.issues, '默认配置不该产生 issues')
+  assert.equal(empty.value.mode, 'normal')
+  assert.equal(empty.value.memory.maxFacts, 300)
+  assert.equal(empty.value.security.updateHours, 12)
+  const junk = std.validate({ mode: 'nope', memory: { maxFacts: 99999 }, security: { updateHours: 'abc' } })
+  assert.ok(!junk.issues)
+  assert.equal(junk.value.mode, 'normal')
+  assert.equal(junk.value.memory.maxFacts, 1000)
+  assert.equal(junk.value.security.updateHours, 12)
+  assert.equal(std.validate({ custom: 'x'.repeat(900) }).value.custom.length, 600)
+  assert.ok(std.validate(null).value)
+  assert.ok(std.validate(undefined).value)
+})
+
+await check('inject 覆盖源码里用到的每个 ctx 服务（宿主没声明就抛 "without inject"）', () => {
+  const CORE = new Set(['effect', 'logger', 'options', 'fiber', 'events', 'platform', 'sessions'])
+  const libDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'lib')
+  const used = new Set()
+  const guarded = new Set()
+  for (const f of fs.readdirSync(libDir).filter((x) => x.endsWith('.js'))) {
+    const lines = fs.readFileSync(path.join(libDir, f), 'utf8').split(/\r?\n/)
+    lines.forEach((line, i) => {
+      for (const m of line.matchAll(/\bctx\.([a-zA-Z_][\w]*)/g)) {
+        const key = m[1]
+        const near = lines.slice(Math.max(0, i - 2), i + 3).join('\n')
+        if (/\btry\s*\{/.test(near) && /\}\s*catch/.test(near)) guarded.add(key)
+        else used.add(key)
+      }
+    })
+  }
+  const missing = [...used].filter((k) => !CORE.has(k) && !plugin.inject.includes(k))
+  assert.deepEqual(missing, [], `plugin.inject 少了：${missing.join(', ')}`)
+  // command 只在 agent 子作用域有：写进 inject 会让整枚插件永远 pending，只能 try/catch 取
+  assert.ok(!plugin.inject.includes('command'), 'command 不能出现在 inject 里')
+  assert.ok(!used.has('command'), 'ctx.command 必须包在 try/catch 里读')
+  assert.ok(guarded.has('command'), '源码里没有受保护的 ctx.command 取值')
 })
 
 await check('注册了全部工具', () => {

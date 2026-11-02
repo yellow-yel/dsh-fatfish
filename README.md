@@ -4,12 +4,12 @@
 
 | 包 | 一句话 | 版本 |
 | --- | --- | --- |
-| [`dsh-fatfish-suite`](dsh-fatfish-suite/) | **套装**：一次装齐下面三件，并带两个只读工具看状态与边界 | 0.1.0 |
-| [`dsh-fatfish`](dsh-fatfish/) | 大肥鱼：四档人设 + 时段/情绪，本地记忆，只读查毒与可更新病毒库，七个小动作 | 0.5.0 |
+| [`dsh-fatfish-suite`](dsh-fatfish-suite/) | **套装**：一次装齐下面三件，并带两个只读工具看状态与边界 | 0.1.1 |
+| [`dsh-fatfish`](dsh-fatfish/) | 大肥鱼：四档人设 + 时段/情绪，本地记忆，只读查毒与可更新病毒库，七个小动作 | 0.5.1 |
 | [`dsh-fatfish-hands`](dsh-fatfish-hands/) | 大肥鱼之手：让 agent 用你电脑上的 Edge 真上网——读正文、点链接、搜索、截图；支付/网银/下载硬拦截 | 0.1.3 |
 | [`dsh-quota-guard`](dsh-quota-guard/) | 额度护栏：模型用量账本、每日/每分钟限额、免费账号轮换 | 0.1.3 |
-| [`dsh-path-healer`](dsh-path-healer/) | 路径自愈：换电脑/换盘符后找回 Node、Python、Git、Edge、DSH、NapCat 的路径，写回 JSON 配置 | 0.1.1 |
-| [`dsh-batch-doctor`](dsh-batch-doctor/) | 脚本体检：查/修 bat、cmd、ps1 的中文编码、CRLF、chcp、BOM 和写死路径 | 0.1.1 |
+| [`dsh-path-healer`](dsh-path-healer/) | 路径自愈：换电脑/换盘符后找回 Node、Python、Git、Edge、DSH、NapCat 的路径，写回 JSON 配置 | 0.1.2 |
+| [`dsh-batch-doctor`](dsh-batch-doctor/) | 脚本体检：查/修 bat、cmd、ps1 的中文编码、CRLF、chcp、BOM 和写死路径 | 0.1.2 |
 
 零依赖，只用 Node 22+ 内置能力。本地运行，不上传聊天内容，也不上传文件。
 默认免费优先：套装不配置任何付费开关，也不自动充值；没配单价的模型会明确标成 `priced=false`。

@@ -146,7 +146,7 @@ export function suiteStatus() {
   const self = manifestOf('dsh-fatfish-suite')
   return {
     ok: true,
-    suite: { name: 'dsh-fatfish-suite', version: self?.version || '0.1.0' },
+    suite: { name: 'dsh-fatfish-suite', version: self?.version || '0.1.1' },
     companions,
     allInstalled: companions.every((c) => c.installed),
     allMounted: companions.every((c) => c.mounted),
@@ -268,8 +268,15 @@ export function apply(ctx) {
     }
   })
 
-  if (ctx.command) {
-    ctx.command('fatfish.suite', '查看大肥鱼套装三件是否装齐、挂载与版本', async () => {
+  // command 只在 agent 上下文的子作用域提供：写进 inject 会让整枚插件永远 pending，
+  // 根作用域直接读又会被宿主抛 cannot get property，所以按需取、取不到就跳过斜杠命令。
+  let command = null
+  try {
+    command = ctx.command
+  } catch {}
+
+  if (command) {
+    command('fatfish.suite', '查看大肥鱼套装三件是否装齐、挂载与版本', async () => {
       const s = suiteStatus()
       return statusView(s)
     })

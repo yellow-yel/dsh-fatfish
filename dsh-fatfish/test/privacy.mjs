@@ -79,7 +79,7 @@ check(`隐私扫描（${files.length} 个文件）`, () => {
 check('打包白名单不夹带密钥/配置', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'))
   assert.equal(pkg.name, 'dsh-fatfish')
-  assert.equal(pkg.version, '0.5.0')
+  assert.equal(pkg.version, '0.5.1')
   assert.equal(pkg.private, undefined)
   assert.equal(pkg.license, 'MIT')
   const wanted = ['lib', 'client.js', 'cordis.patch.yml', 'README.md', 'CHANGELOG.md', 'SECURITY.md', 'LICENSE']

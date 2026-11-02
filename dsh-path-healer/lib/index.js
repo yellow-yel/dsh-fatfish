@@ -55,6 +55,48 @@ export const Config = {
   },
 }
 
+// 宿主 cordis 用 Standard Schema 校验配置：runtime.Config['~standard'].validate(config)。
+// 只导出裸 JSON Schema 会在这行抛 TypeError，整枚插件不装载，所以把 Schema 当填充说明书自己收口。
+function clampInt(v, lo, hi, fallback) {
+  const n = Math.trunc(Number(v))
+  if (!Number.isFinite(n)) {
+    const f = Math.trunc(Number(fallback))
+    return Number.isFinite(f) ? Math.min(hi, Math.max(lo, f)) : lo
+  }
+  return Math.min(hi, Math.max(lo, n))
+}
+
+function normalizeConfig(node, value) {
+  if (!node || node.type !== 'object') return value
+  const src = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+  const out = { ...src }
+  for (const [k, sub] of Object.entries(node.properties || {})) {
+    if (sub.type === 'object') {
+      out[k] = normalizeConfig(sub, out[k])
+      continue
+    }
+    if (out[k] === undefined) {
+      if (sub.default !== undefined) out[k] = sub.default
+      continue
+    }
+    if (sub.type === 'boolean') out[k] = out[k] === true || out[k] === 'true'
+    else if (sub.type === 'integer') {
+      const lo = Number.isFinite(+sub.minimum) ? +sub.minimum : -1e15
+      const hi = Number.isFinite(+sub.maximum) ? +sub.maximum : 1e15
+      out[k] = clampInt(out[k], lo, hi, sub.default)
+    }
+    else if (sub.enum && !sub.enum.includes(out[k])) out[k] = sub.default
+    else if (sub.type === 'string') out[k] = String(out[k])
+  }
+  return out
+}
+
+Config['~standard'] = {
+  version: 1,
+  vendor: 'dsh-path-healer',
+  validate: (value) => ({ value: normalizeConfig(Config, value) }),
+}
+
 const STATUS = {
   ok: '在用',
   moved: '已修正',
@@ -202,8 +244,15 @@ export function apply(ctx, config) {
     ctx.effect(() => dispose, 'path-healer.tools()')
   }
 
-  if (ctx.command) {
-    ctx.command?.('pathhealer.check', '体检 Node/Python/Git/Edge/DSH 等路径（只读）', async () => {
+  // command 只在 agent 上下文的子作用域提供：写进 inject 会让整枚插件永远 pending，
+  // 根作用域直接读又会被宿主抛 cannot get property，所以按需取、取不到就跳过斜杠命令。
+  let command = null
+  try {
+    command = ctx.command
+  } catch {}
+
+  if (command) {
+    command('pathhealer.check', '体检 Node/Python/Git/Edge/DSH 等路径（只读）', async () => {
       try {
         return formatReport(heal({
           configFile: cfg.configFile || defaultConfigFile(),
@@ -215,7 +264,7 @@ export function apply(ctx, config) {
         return `路径体检失败：${e.message}`
       }
     })
-    ctx.command?.('pathhealer.repair', '找回失效的工具路径并写回配置（写前备份）', async () => {
+    command('pathhealer.repair', '找回失效的工具路径并写回配置（写前备份）', async () => {
       try {
         return formatReport(heal({
           configFile: cfg.configFile || defaultConfigFile(),
@@ -227,7 +276,7 @@ export function apply(ctx, config) {
         return `路径修复失败：${e.message}`
       }
     })
-    ctx.command?.('pathhealer.get <key>', '取某个工具的当前路径', async (key) => {
+    command('pathhealer.get <key>', '取某个工具的当前路径', async (key) => {
       try {
         const found = getPath(String(key || '').trim(), {
           configFile: cfg.configFile || defaultConfigFile(),

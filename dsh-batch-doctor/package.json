@@ -1,6 +1,6 @@
 {
   "name": "dsh-batch-doctor",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "DSH 脚本体检：检查/修复 Windows bat/cmd/ps1 的中文编码、CRLF、chcp 不匹配、ps1 缺 BOM、块内 echo 裸括号和写死路径。只动指定目录里的脚本，写前 .bak，不联网、不删文件。",
   "keywords": [
     "dsh",

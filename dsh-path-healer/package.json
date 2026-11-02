@@ -1,6 +1,6 @@
 {
   "name": "dsh-path-healer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "DSH 路径自愈：换电脑/换盘符后自动找回 Node、Python、Git、Edge、DSH NEXT、NapCat 的真实路径，体检并修复 JSON 配置。只写自己的配置文件，不执行命令、不联网、不删文件。",
   "keywords": [
     "dsh",

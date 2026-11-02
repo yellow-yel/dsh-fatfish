@@ -86,7 +86,7 @@ await check('状态工具能认出三个同伴与挂载关系', async () => {
   assert.equal(r.allMounted, true, `没挂载：${r.unmounted.join('/')}`)
   assert.deepEqual(r.versionMismatch, [])
   assert.equal(r.suite.name, 'dsh-fatfish-suite')
-  assert.equal(r.suite.version, '0.1.0')
+  assert.equal(r.suite.version, '0.1.1')
   const rendered = registered.get('fatfish_suite_status').output.render({}, r)
   assert.match(rendered[0].text, /三件都齐了/)
 })
@@ -143,6 +143,24 @@ await check('依赖版本与同伴包一致', () => {
     const manifest = JSON.parse(fs.readFileSync(path.join(BUNDLE, c.name, 'package.json'), 'utf8'))
     assert.equal(dep, manifest.version, `${c.name}: 依赖 ${dep} 与目录版本 ${manifest.version} 不一致`)
   }
+})
+
+await check('宿主契约：command 不进 inject，读取要有 try/catch 兜底', () => {
+  const CORE = new Set(['effect', 'logger', 'options', 'fiber', 'events', 'platform', 'sessions'])
+  const lines = fs.readFileSync(path.join(ROOT, 'lib', 'index.js'), 'utf8').split(/\r?\n/)
+  const used = new Set()
+  const guarded = new Set()
+  lines.forEach((line, i) => {
+    for (const m of line.matchAll(/\bctx\.([a-zA-Z_]\w*)/g)) {
+      const near = lines.slice(Math.max(0, i - 2), i + 3).join('\n')
+      if (/\btry\s*\{/.test(near) && /\}\s*catch/.test(near)) guarded.add(m[1])
+      else used.add(m[1])
+    }
+  })
+  const missing = [...used].filter((k) => !CORE.has(k) && !plugin.inject.includes(k))
+  assert.deepEqual(missing, [], `inject 少了：${missing.join(', ')}`)
+  assert.ok(!plugin.inject.includes('command'), 'command 进 inject 会让根作用域永远 pending')
+  assert.ok(guarded.has('command') && !used.has('command'), 'ctx.command 必须包在 try/catch 里读')
 })
 
 await check('套装源码不联网、不起进程、不写文件', () => {

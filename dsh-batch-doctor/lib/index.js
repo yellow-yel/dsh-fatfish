@@ -53,6 +53,48 @@ export const Config = {
   },
 }
 
+// 宿主 cordis 用 Standard Schema 校验配置：runtime.Config['~standard'].validate(config)。
+// 只导出裸 JSON Schema 会在这行抛 TypeError，整枚插件不装载，所以把 Schema 当填充说明书自己收口。
+function clampInt(v, lo, hi, fallback) {
+  const n = Math.trunc(Number(v))
+  if (!Number.isFinite(n)) {
+    const f = Math.trunc(Number(fallback))
+    return Number.isFinite(f) ? Math.min(hi, Math.max(lo, f)) : lo
+  }
+  return Math.min(hi, Math.max(lo, n))
+}
+
+function normalizeConfig(node, value) {
+  if (!node || node.type !== 'object') return value
+  const src = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+  const out = { ...src }
+  for (const [k, sub] of Object.entries(node.properties || {})) {
+    if (sub.type === 'object') {
+      out[k] = normalizeConfig(sub, out[k])
+      continue
+    }
+    if (out[k] === undefined) {
+      if (sub.default !== undefined) out[k] = sub.default
+      continue
+    }
+    if (sub.type === 'boolean') out[k] = out[k] === true || out[k] === 'true'
+    else if (sub.type === 'integer') {
+      const lo = Number.isFinite(+sub.minimum) ? +sub.minimum : -1e15
+      const hi = Number.isFinite(+sub.maximum) ? +sub.maximum : 1e15
+      out[k] = clampInt(out[k], lo, hi, sub.default)
+    }
+    else if (sub.enum && !sub.enum.includes(out[k])) out[k] = sub.default
+    else if (sub.type === 'string') out[k] = String(out[k])
+  }
+  return out
+}
+
+Config['~standard'] = {
+  version: 1,
+  vendor: 'dsh-batch-doctor',
+  validate: (value) => ({ value: normalizeConfig(Config, value) }),
+}
+
 const LEVEL = { error: '错误', warning: '警告', info: '提示' }
 
 function normalizeOptions(args, config) {
@@ -241,15 +283,22 @@ export function apply(ctx, config) {
     ctx.effect(() => dispose, 'batch-doctor.tools()')
   }
 
-  if (ctx.command) {
-    ctx.command?.('batchdoctor.lint [dir]', '体检 bat/cmd/ps1 编码与行尾', async (dir) => {
+  // command 只在 agent 上下文的子作用域提供：写进 inject 会让整枚插件永远 pending，
+  // 根作用域直接读又会被宿主抛 cannot get property，所以按需取、取不到就跳过斜杠命令。
+  let command = null
+  try {
+    command = ctx.command
+  } catch {}
+
+  if (command) {
+    command('batchdoctor.lint [dir]', '体检 bat/cmd/ps1 编码与行尾', async (dir) => {
       try {
         return formatLint(lintDir(String(dir || '').trim() || process.cwd(), normalizeOptions({}, cfg)))
       } catch (e) {
         return `脚本体检失败：${e.message}`
       }
     })
-    ctx.command?.('batchdoctor.fix [dir]', '修复脚本编码（按配置的 mode，写前备份）', async (dir) => {
+    command('batchdoctor.fix [dir]', '修复脚本编码（按配置的 mode，写前备份）', async (dir) => {
       try {
         const opts = normalizeOptions({}, cfg)
         opts.write = true

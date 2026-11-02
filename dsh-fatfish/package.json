@@ -1,6 +1,6 @@
 {
   "name": "dsh-fatfish",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "给 DSH 的 agent 套上大肥鱼人格：会聊天、会记事、会查毒。人设/时段/情绪/红线，本地记忆自动抽取，恶意进程/启动项/文件哈希检查，病毒库可在线更新，零依赖不上传。",
   "keywords": [
     "dsh",
