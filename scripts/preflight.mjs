@@ -311,6 +311,13 @@ console.log(JSON.stringify(out))
   return `Node ${rt.version} · ${loaded.map((m) => `${m.name}:${m.shape}`).join(' · ')}`
 })
 
+await check('宿主装载契约探针（Config 要 ~standard，inject 要与服务对得上）', () => {
+  const res = run(process.execPath, ['scripts/host-mount-probe.mjs'], { cwd: bundleRoot })
+  const lines = res.all.split('\n')
+  assert(res.code === 0, `有插件按宿主契约装不上：\n${lines.filter((l) => l.includes('✘') || l.startsWith('    ')).join('\n').slice(0, 900)}`)
+  return lines.filter((l) => l.startsWith('✓')).map((l) => l.slice(2).split(' —')[0]).join(' · ')
+})
+
 await check('npm pack 白名单实测', () => {
   const launcher = npmLauncher()
   if (!launcher) return 'npm 不可用，跳过'
